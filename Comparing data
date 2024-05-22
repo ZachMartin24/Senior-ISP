@@ -4,22 +4,18 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-# Function to get game log for a player
-def get_player_gamelog(player_id):
-    gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=player_id, season=SeasonAll.all)
-    df_player_career = gamelog_all_seasons.get_data_frames()[0]
-    df_player_career['GAME_DATE'] = pd.to_datetime(df_player_career['GAME_DATE'])
-    df_player_career.sort_values(by='GAME_DATE', inplace=True)
-    return df_player_career
+gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=lebron_id, season=SeasonAll.all)
+gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=curry_id, season=SeasonAll.all)
 
 # LeBron James' player ID
 lebron_id = '2544'
 # Stephen Curry's player ID
 curry_id = '201939'
 
-# Get game logs for both players
-df_lebron_career = get_player_gamelog(lebron_id)
-df_curry_career = get_player_gamelog(curry_id)
+df_lebron_career['GAME_DATE'] = pd.to_datetime(df_lebron_career['GAME_DATE'])
+df_lebron_career.sort_values(by='GAME_DATE', inplace=True)
+df_curry_career['GAME_DATE'] = pd.to_datetime(df_curry_career['GAME_DATE'])
+df_curry_career.sort_values(by='GAME_DATE', inplace=True)
 
 # Add a column to indicate the player
 df_lebron_career['Player'] = 'LeBron James'
