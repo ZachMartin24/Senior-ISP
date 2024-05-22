@@ -1,0 +1,56 @@
+from nba_api.stats.endpoints import playergamelog
+from nba_api.stats.library.parameters import SeasonAll
+import pandas as pd
+import plotly.express as px
+import numpy as np
+
+# Function to get game log for a player
+def get_player_gamelog(player_id):
+    gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=player_id, season=SeasonAll.all)
+    df_player_career = gamelog_all_seasons.get_data_frames()[0]
+    df_player_career['GAME_DATE'] = pd.to_datetime(df_player_career['GAME_DATE'])
+    df_player_career.sort_values(by='GAME_DATE', inplace=True)
+    return df_player_career
+
+# LeBron James' player ID
+lebron_id = '2544'
+# Stephen Curry's player ID
+curry_id = '201939'
+
+# Get game logs for both players
+df_lebron_career = get_player_gamelog(lebron_id)
+df_curry_career = get_player_gamelog(curry_id)
+
+# Add a column to indicate the player
+df_lebron_career['Player'] = 'LeBron James'
+df_curry_career['Player'] = 'Stephen Curry'
+
+# Combine the two dataframes
+df_combined = pd.concat([df_lebron_career, df_curry_career])
+
+# Calculate mean and standard deviation for both players
+mean_lebron = np.mean(df_lebron_career["PTS"])
+st_dev_lebron = np.std(df_lebron_career["PTS"])
+
+mean_curry = np.mean(df_curry_career["PTS"])
+st_dev_curry = np.std(df_curry_career["PTS"])
+
+# Print mean and standard deviation for both players
+print("LeBron James - Mean: %.2f, Std Dev: %.2f" % (mean_lebron, st_dev_lebron))
+print("Stephen Curry - Mean: %.2f, Std Dev: %.2f" % (mean_curry, st_dev_curry))
+
+# Generate the string for the title (include mean points per game)
+title_str = "Points per Game Comparison: LeBron James vs Stephen Curry"
+
+# Plot points vs game date for both players
+fig = px.scatter(df_combined, x='GAME_DATE', y='PTS', color='Player', labels={
+                     "GAME_DATE": "Game Date",
+                     "PTS": "Points Scored per Game"
+                 }, title=title_str)
+
+# Add horizontal lines for the mean scores
+fig.add_hline(y=mean_lebron, line_width=3, line_dash="dash", line_color="red", annotation_text="LeBron Mean")
+fig.add_hline(y=mean_curry, line_width=3, line_dash="dash", line_color="blue", annotation_text="Curry Mean")
+
+# Show the chart
+fig.show()
