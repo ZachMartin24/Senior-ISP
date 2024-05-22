@@ -4,13 +4,13 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=lebron_id, season=SeasonAll.all)
-gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=curry_id, season=SeasonAll.all)
-
 # LeBron James' player ID
 lebron_id = '2544'
 # Stephen Curry's player ID
 curry_id = '201939'
+
+gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=lebron_id, season=SeasonAll.all)
+gamelog_all_seasons = playergamelog.PlayerGameLog(player_id=curry_id, season=SeasonAll.all)
 
 df_lebron_career['GAME_DATE'] = pd.to_datetime(df_lebron_career['GAME_DATE'])
 df_lebron_career.sort_values(by='GAME_DATE', inplace=True)
