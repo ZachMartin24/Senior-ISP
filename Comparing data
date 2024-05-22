@@ -12,8 +12,8 @@ curry_id = '201939'
 gamelog_lebron_all_seasons = playergamelog.PlayerGameLog(player_id=lebron_id, season=SeasonAll.all)
 gamelog_curry_all_seasons = playergamelog.PlayerGameLog(player_id=curry_id, season=SeasonAll.all)
 
-df_lebron_career = gamelog_all_seasons.get_data_frames()[0]
-df_curry_career = gamelog_all_seasons.get_data_frames()[0]
+df_lebron_career = gamelog_lebron_all_seasons.get_data_frames()[0]
+df_curry_career = gamelog_curry_all_seasons.get_data_frames()[0]
 
 df_lebron_career['GAME_DATE'] = pd.to_datetime(df_lebron_career['GAME_DATE'])
 df_lebron_career.sort_values(by='GAME_DATE', inplace=True)
