@@ -1,0 +1,74 @@
+from nba_api.stats.endpoints import playergamelog
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+
+# Function to fetch playoff data for a given player and season
+def fetch_playoff_data(player_id, season='2023-24'):
+    gamelog = playergamelog.PlayerGameLog(player_id=player_id, season=season, season_type_all_star='Playoffs')
+    df = gamelog.get_data_frames()[0]
+    df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'])
+    df.sort_values(by='GAME_DATE', inplace=True)
+    return df
+
+# Player IDs
+tatum_id = '1628369'
+doncic_id = '1629029'
+
+# Fetch playoff data for both players
+df_tatum_playoffs = fetch_playoff_data(tatum_id)
+df_doncic_playoffs = fetch_playoff_data(doncic_id)
+
+# Check the number of games retrieved
+print(f"Number of games for Jayson Tatum: {len(df_tatum_playoffs)}")
+print(f"Number of games for Luka Doncic: {len(df_doncic_playoffs)}")
+
+# Display the first few rows of the dataframes
+print(df_tatum_playoffs.head())
+print(df_doncic_playoffs.head())
+
+# Add a column to indicate the player
+df_tatum_playoffs['Player'] = 'Jayson Tatum'
+df_doncic_playoffs['Player'] = 'Luka Doncic'
+
+# Combine the two dataframes
+df_combined_playoffs = pd.concat([df_tatum_playoffs, df_doncic_playoffs])
+
+# Calculate mean and standard deviation for both players
+mean_tatum = np.mean(df_tatum_playoffs["PTS"])
+st_dev_tatum = np.std(df_tatum_playoffs["PTS"])
+
+mean_doncic = np.mean(df_doncic_playoffs["PTS"])
+st_dev_doncic = np.std(df_doncic_playoffs["PTS"])
+
+# Print mean and standard deviation for both players
+print("Jayson Tatum - Mean: %.2f, Std Dev: %.2f" % (mean_tatum, st_dev_tatum))
+print("Luka Doncic - Mean: %.2f, Std Dev: %.2f" % (mean_doncic, st_dev_doncic))
+
+# Generate the string for the title (include mean points per game)
+title_str = "2024 Playoff Points per Game: Jayson Tatum vs Luka Doncic"
+
+# Plot points vs game date for both players
+plt.figure(figsize=(14, 7))
+
+# Plot Jayson Tatum's points
+plt.plot(df_tatum_playoffs['GAME_DATE'], df_tatum_playoffs['PTS'], label='Jayson Tatum', marker='o', color='blue')
+
+# Plot Luka Doncic's points
+plt.plot(df_doncic_playoffs['GAME_DATE'], df_doncic_playoffs['PTS'], label='Luka Doncic', marker='x', color='green')
+
+# Add horizontal lines for the mean scores
+plt.axhline(y=mean_tatum, color='blue', linestyle='--', linewidth=1, label=f'Tatum Mean: {mean_tatum:.2f}')
+plt.axhline(y=mean_doncic, color='green', linestyle='--', linewidth=1, label=f'Doncic Mean: {mean_doncic:.2f}')
+
+# Add labels and title
+plt.xlabel('Game Date')
+plt.ylabel('Points Scored per Game')
+plt.title(title_str)
+plt.legend()
+
+# Show the plot
+plt.show()
