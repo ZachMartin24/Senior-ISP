@@ -1,0 +1,35 @@
+# Import necessary libraries
+from nba_api.stats.endpoints import playergamelog
+from nba_api.stats.library.parameters import SeasonAll
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+
+# Function to fetch playoff data for a given player and season
+def fetch_playoff_data(player_id, season='2023-24'):
+    gamelog = playergamelog.PlayerGameLog(player_id=player_id, season=season, season_type_all_star='Playoffs')
+    df = gamelog.get_data_frames()[0]
+    df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'])
+    df.sort_values(by='GAME_DATE', inplace=True)
+    return df
+
+# Player IDs
+tatum_id = '1628369'
+doncic_id = '1629029'
+
+# Fetch playoff data for both players
+df_tatum_playoffs = fetch_playoff_data(tatum_id)
+df_doncic_playoffs = fetch_playoff_data(doncic_id)
+
+# Add a column to indicate the player
+df_tatum_playoffs['Player'] = 'Jayson Tatum'
+df_doncic_playoffs['Player'] = 'Luka Doncic'
+
+# Combine the two dataframes
+df_combined_playoffs = pd.concat([df_tatum_playoffs, df_doncic_playoffs])
+
+# Display the first few rows of the combined dataframe
+print(df_combined_playoffs.head())
