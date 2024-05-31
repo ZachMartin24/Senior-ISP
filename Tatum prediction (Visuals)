@@ -1,0 +1,23 @@
+import matplotlib.pyplot as plt
+
+# Tatum's actual points scored in his last 5 games
+actual_points_last_5_games = tatum_last_5_games['PTS'].values
+
+# Plot Tatum's actual points scored in his last 5 games
+plt.plot(range(1, 6), actual_points_last_5_games, marker='o', label='Actual Points Last 5 Games')
+
+# Plot the predicted points for the upcoming game
+plt.plot(6, predicted_pts[0], marker='s', markersize=8, label='Predicted Points for Upcoming Game')
+
+# Add labels and title
+plt.xlabel('Game')
+plt.ylabel('Points Scored')
+plt.title('Actual vs Predicted Points for Upcoming Game')
+plt.xticks(range(1, 7), ['Game 1', 'Game 2', 'Game 3', 'Game 4', 'Game 5', 'Upcoming Game'])
+
+# Add legend
+plt.legend()
+
+# Show plot
+plt.grid(True)
+plt.show()
