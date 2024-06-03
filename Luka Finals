@@ -1,0 +1,57 @@
+# Import necessary libraries
+from nba_api.stats.endpoints import playergamelog
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Luka Dončić's player ID
+luka_id = '1629029'
+
+# Fetch game logs for the 2023-24 season
+gamelog = playergamelog.PlayerGameLog(player_id=luka_id, season='2023-24')
+df_luka = gamelog.get_data_frames()[0]
+
+# Select relevant columns for prediction
+df_luka = df_luka[['GAME_DATE', 'PTS', 'FG3M', 'REB', 'AST', 'TOV']]
+
+# Convert GAME_DATE to datetime and sort by date
+df_luka['GAME_DATE'] = pd.to_datetime(df_luka['GAME_DATE'])
+df_luka.sort_values(by='GAME_DATE', inplace=True)
+
+# Prepare the features (X) and target (y)
+X = df_luka[['FG3M', 'REB', 'AST', 'TOV']]
+y = df_luka['PTS']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train a linear regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions for the testing set
+y_pred = model.predict(X_test)
+
+# Calculate the mean absolute error for evaluation
+mae = np.mean(abs(y_test - y_pred))
+print(f"Mean Absolute Error: {mae:.2f}")
+
+# Make predictions for the next game (e.g., Finals)
+# Assuming we use average values from recent games for predictions
+recent_games = df_luka.tail(5)
+X_next_game = recent_games[['FG3M', 'REB', 'AST', 'TOV']].mean().values.reshape(1, -1)
+predicted_points = model.predict(X_next_game)
+print(f"Predicted Points for Next Game (Finals): {predicted_points[0]:.2f}")
+
+# Visualize the predictions
+plt.figure(figsize=(10, 6))
+plt.plot(df_luka['GAME_DATE'], df_luka['PTS'], label='Actual Points', marker='o')
+plt.axhline(y=predicted_points[0], color='r', linestyle='--', label='Predicted Points (Finals)')
+plt.xlabel('Game Date')
+plt.ylabel('Points')
+plt.title("Luka Dončić's Points Prediction for the Finals")
+plt.legend()
+plt.grid(True)
+plt.show()
