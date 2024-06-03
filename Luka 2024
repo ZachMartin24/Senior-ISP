@@ -1,1 +1,42 @@
+# First, import necessary libraries
+from nba_api.stats.endpoints import playergamelog
+from nba_api.stats.library.parameters import SeasonAll
+import pandas as pd
+import plotly.express as px
+
+# Luka Doncic's player ID
+luka_id = '1629029'
+
+# Query nba_api for Luka Doncic's game log for all seasons
+gamelog_luka = playergamelog.PlayerGameLog(player_id=luka_id, season=SeasonAll.all)
+
+# Get data as a dataframe
+df_luka_games = gamelog_luka.get_data_frames()[0]
+
+# Inspect the available columns
+print(df_luka_games.columns)
+
+# Since 'GAME_ID' might not be available, inspect 'SEASON_ID' and 'GAME_DATE' for filtering
+print(df_luka_games[['SEASON_ID', 'GAME_DATE']].head())
+
+# Filter for the 2024 season manually
+df_luka_playoffs = df_luka_games[df_luka_games['SEASON_ID'] == '22023']
+
+# Convert to datetime format then sort by datetime
+df_luka_playoffs['GAME_DATE'] = pd.to_datetime(df_luka_playoffs['GAME_DATE'])
+df_luka_playoffs.sort_values(by='GAME_DATE', inplace=True)
+
+# Create a new dataframe for points, assists, and rebounds
+df_luka_performance = df_luka_playoffs[['GAME_DATE', 'PTS', 'AST', 'REB']]
+
+# Melt the dataframe for easier plotting
+df_melted = df_luka_performance.melt(id_vars='GAME_DATE', var_name='Stat', value_name='Value')
+
+# Plot the performance metrics over time
+fig = px.line(df_melted, x='GAME_DATE', y='Value', color='Stat', markers=True,
+              title="Luka Doncic's Performance in the 2024 Regular Season",
+              labels={"GAME_DATE": "Game Date", "Value": "Stat Value"})
+
+# Show the plot
+fig.show()
 
