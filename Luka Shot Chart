@@ -1,0 +1,51 @@
+# First, import necessary libraries
+from nba_api.stats.endpoints import shotchartdetail
+import pandas as pd
+import plotly.express as px
+
+# Luka Doncic's player ID
+luka_id = '1629029'
+
+# Fetch shot chart data for the 2024 playoffs
+shot_chart = shotchartdetail.ShotChartDetail(
+    team_id=0,  # 0 for all teams
+    player_id=luka_id,
+    season_type_all_star='Playoffs',
+    season_nullable='2023-24'
+)
+
+# Get data as a dataframe
+df_shots = shot_chart.get_data_frames()[0]
+
+# Display the first few rows to understand the data
+print(df_shots.head())
+
+# Prepare the data by filtering made and missed shots
+df_shots['EVENT_TYPE'] = df_shots['EVENT_TYPE'].map({'Made Shot': 'Made', 'Missed Shot': 'Missed'})
+df_shots_made = df_shots[df_shots['EVENT_TYPE'] == 'Made']
+df_shots_missed = df_shots[df_shots['EVENT_TYPE'] == 'Missed']
+
+# Plot the shot chart
+fig = px.scatter(
+    df_shots, x='LOC_X', y='LOC_Y',
+    color='EVENT_TYPE', symbol='EVENT_TYPE',
+    color_discrete_map={'Made': 'green', 'Missed': 'red'},
+    title="Luka Doncic's Shot Chart in the 2024 Playoffs",
+    labels={"LOC_X": "X Coordinate", "LOC_Y": "Y Coordinate"}
+)
+
+# Update plot layout to resemble a basketball court
+fig.update_layout(
+    xaxis=dict(showgrid=False, zeroline=False),
+    yaxis=dict(showgrid=False, zeroline=False),
+    shapes=[
+        dict(type='rect', x0=-250, x1=250, y0=-50, y1=420, line=dict(color='black', width=1)),
+        dict(type='rect', x0=-80, x1=80, y0=-50, y1=140, line=dict(color='black', width=1)),
+        dict(type='circle', x0=-60, x1=60, y0=80, y1=200, line=dict(color='black', width=1)),
+        dict(type='line', x0=-220, x1=-220, y0=-50, y1=140, line=dict(color='black', width=1)),
+        dict(type='line', x0=220, x1=220, y0=-50, y1=140, line=dict(color='black', width=1))
+    ]
+)
+
+# Show the plot
+fig.show()
